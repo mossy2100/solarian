@@ -1,0 +1,8 @@
+name: Astro Object
+description: Module to support astronomical objects within Solarian.
+package: Solarian
+type: module
+version: 1.0
+core: 8.x
+dependencies:
+  - field

@@ -1,0 +1,73 @@
+<?php
+/**
+ * @author Shaun Mark Moss (shaunmoss71@gmail.com)
+ * @date 2018-03-02
+ * @file
+ * Different stuffs like form, formatters, calculated fields, etc., for astronomical objects.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Calculate the value of the semi-major axis.
+ *
+ * @param $entity_type_manager
+ * @param $entity
+ * @param $fields
+ * @param $delta
+ */
+function computed_field_field_semi_major_axis_compute($entity_type_manager, $entity, $fields, $delta) {
+  $periapsis = $fields['field_periapsis_radius'][0]['value'];
+  $apoapsis = $fields['field_apoapsis_radius'][0]['value'];
+  return ($periapsis + $apoapsis) / 2;
+}
+
+/**
+ * Calculate the object's surface area.
+ *
+ * @param $entity_type_manager
+ * @param $entity
+ * @param $fields
+ * @param $delta
+*/
+function computed_field_field_surface_area_compute($entity_type_manager, $entity, $fields, $delta) {
+  // Get the radii and sort them in order of increasing length.
+  $radii = [
+    $fields['field_radius_a'][0]['value'],
+    $fields['field_radius_b'][0]['value'],
+    $fields['field_radius_c'][0]['value'],
+  ];
+  sort($radii);
+  $a = $radii[0];
+  $b = $radii[1];
+  $c = $radii[2];
+  // Calculate the surface area.
+  if ($a == $b && $b == $c) {
+    // Sphere.
+    $area = 4 * pi() * pow($a, 2);
+  }
+  elseif ($a == $b || $b == c) {
+    // Spheroid.
+    $a2 = pow($a, 2);
+    $c2 = pow($c, 2);
+    $e = sqrt(1 - $a2 / $c2);
+    if ($a < $b) {
+      // Oblate spheroid.
+      $area = 2 * pi() * $c2 * (1 + (1 - pow($e, 2)) / $e * atanh($e));
+    }
+    else {
+      // Prolate spheroid.
+      $area = 2 * pi() * $a2 * (1 + $c / ($a * $e) * asin($e));
+    }
+  }
+  else {
+    // Triaxial ellipsiod (approximation).
+    $p = 1.6075;
+    $ap = pow($a, $p);
+    $bp = pow($b, $p);
+    $cp = pow($c, $p);
+    $d = $ap * $bp + $ap * $cp + $bp * $cp;
+    $area = 4 * pi() * pow($d / 3, 1 / $p);
+  }
+  return $area;
+}
