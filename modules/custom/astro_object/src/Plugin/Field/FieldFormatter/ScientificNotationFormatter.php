@@ -12,13 +12,14 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\DecimalFormatter;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Plugin implementation of the 'big number' formatter.
+ * Plugin implementation of the scientific notation formatter.
  *
  * @FieldFormatter(
  *   id = "scientific_notation",
  *   label = @Translation("Scientific notation"),
  *   field_types = {
- *     "float"
+ *     "float",
+ *     "computed_float"
  *   }
  * )
  */
@@ -30,8 +31,9 @@ class ScientificNotationFormatter extends DecimalFormatter {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    // Remove support for thousands seperators, since the number will always be displayed as 9.999e999.
-    // Thousandths separators are a separate issue.
+    // Remove support for thousands separators, since the number will always be displayed with only one digit before the
+    // decimal pount, e.g. 9.999e99
+    // Thousandths separators are a separate issue, not likely to be important.
     unset($elements['thousand_separator']);
 
     return $elements;

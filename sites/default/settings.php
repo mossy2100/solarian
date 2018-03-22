@@ -784,7 +784,7 @@ $settings['entity_update_batch_size'] = 50;
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
 $databases['default']['default'] = array (
-  'database' => 'multiplanetary.game',
+  'database' => 'solarian',
   'username' => 'drupal',
   'password' => 'drupal',
   'prefix' => '',
@@ -799,8 +799,8 @@ $config_directories['sync'] = 'sites/default/files/config_CncW2Eq0W90XiDligMDGo0
 // Trusted host security.
 // @see https://www.drupal.org/node/1992030
 $settings['trusted_host_patterns'] = [
-    '^multiplanetary\.game\.local$',
-    '^multiplanetary\.game$',
+    '^solarian\.game\.local$',
+    '^solarian\.game$',
 ];
 
 // Report all errors.

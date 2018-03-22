@@ -9,33 +9,36 @@
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Calculate the value of the semi-major axis.
+ * Calculate the value of the semi-major axis in kilometres (km).
  *
  * @param $entity_type_manager
  * @param $entity
  * @param $fields
  * @param $delta
+ * @return float
  */
 function computed_field_field_semi_major_axis_compute($entity_type_manager, $entity, $fields, $delta) {
-  $periapsis = $fields['field_periapsis_radius'][0]['value'];
-  $apoapsis = $fields['field_apoapsis_radius'][0]['value'];
-  return ($periapsis + $apoapsis) / 2;
+  $rp = (float)$fields['field_periapsis_radius'][0]['value'];
+  $ra = (float)$fields['field_apoapsis_radius'][0]['value'];
+  $a = ($rp == 0 && $ra == 0) ? '' : ($rp + $ra) / 2;
+  return $a;
 }
 
 /**
- * Calculate the object's surface area.
+ * Calculate the object's surface area in square kilometres (km2).
  *
  * @param $entity_type_manager
  * @param $entity
  * @param $fields
  * @param $delta
-*/
+ * @return float
+ */
 function computed_field_field_surface_area_compute($entity_type_manager, $entity, $fields, $delta) {
   // Get the radii and sort them in order of increasing length.
   $radii = [
-    $fields['field_radius_a'][0]['value'],
-    $fields['field_radius_b'][0]['value'],
-    $fields['field_radius_c'][0]['value'],
+    (float)$fields['field_radius_a'][0]['value'],
+    (float)$fields['field_radius_b'][0]['value'],
+    (float)$fields['field_radius_c'][0]['value'],
   ];
   sort($radii);
   $a = $radii[0];
@@ -70,4 +73,62 @@ function computed_field_field_surface_area_compute($entity_type_manager, $entity
     $area = 4 * pi() * pow($d / 3, 1 / $p);
   }
   return $area;
+}
+
+/**
+ * Calculate the object's volume in cubic kilometres (km3).
+ *
+ * @param $entity_type_manager
+ * @param $entity
+ * @param $fields
+ * @param $delta
+ * @return float
+ */
+function computed_field_field_volume_compute($entity_type_manager, $entity, $fields, $delta) {
+  // Cache the result because this function will get called multiple times when both volume and density are computed.
+  // There's no need to compute the volume twice.
+  static $V;
+  if (!isset($V)) {
+    $a = (float)$fields['field_radius_a'][0]['value'];
+    $b = (float)$fields['field_radius_b'][0]['value'];
+    $c = (float)$fields['field_radius_c'][0]['value'];
+    $V = 4 / 3 * pi() * $a * $b * $c;
+  }
+  return $V;
+}
+
+/**
+ * Calculate the object's density in kg/m3.
+ *
+ * @param $entity_type_manager
+ * @param $entity
+ * @param $fields
+ * @param $delta
+ * @return float
+ */
+function computed_field_field_density_compute($entity_type_manager, $entity, $fields, $delta) {
+  // Get the volume in cubic centimetres (cm3).
+  $V = computed_field_field_volume_compute($entity_type_manager, $entity, $fields, $delta) // km3
+       * 1e9; // m3/km3
+  // Get the mass in grams (g).
+  $m = (float)$fields['field_mass'][0]['value']; // kg
+  // Calculate the density in kg/m3.
+  return $m / $V;
+}
+
+/**
+ * Calculate the object's orbital eccentricity.
+ *
+ * @param $entity_type_manager
+ * @param $entity
+ * @param $fields
+ * @param $delta
+ * @return float
+ */
+function computed_field_field_eccentricity_compute($entity_type_manager, $entity, $fields, $delta) {
+  $rp = (float)$fields['field_periapsis_radius'][0]['value'];
+  $ra = (float)$fields['field_apoapsis_radius'][0]['value'];
+  $s = $ra + $rp;
+  $e = $s == 0 ? '' : ($ra - $rp) / $s;
+  return $e;
 }

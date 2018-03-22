@@ -1,0 +1,7 @@
+name: Solar System Explorer
+description: Functions etc. for the Solar System Explorer
+package: Solarian
+type: module
+version: 1.0
+core: 8.x
+dependencies:

@@ -1,0 +1,7 @@
+solsys_explore.explore:
+  path: '/explore'
+  defaults:
+    _controller: '\Drupal\solsys_explore\Controller\SolarSystemExplorerController::exploreSolarSystem'
+    _title: 'Explore the Solar System'
+  requirements:
+    _permission: 'access content'
